@@ -54,8 +54,8 @@ function lstAsociados(asociados) {
   const titleCelular = 'Celular';
   const titleParcela = 'Parcela';
   const titleRow = document.getElementById('titleRow');
+  titleRow.innerHTML = '';
   title = document.createElement('tr');
-  title.innerHTML = '';
   title.innerHTML = `<tr><th>${titleNumeral}</th>
                             <th>${titleMedidor}</th>
                             <th>${titleNombre}</th>
