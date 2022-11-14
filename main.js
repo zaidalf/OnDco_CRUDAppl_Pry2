@@ -1,5 +1,5 @@
-console.log(document.titles); // APR Manager Inc. 
-const asociadosGrabados = JSON.parse(localStorage.getItem("asociados"));
+console.log(document.title); // APR Manager Inc. - 2022
+let asociadosGrabados = getAsociados();
 if (asociadosGrabados) { // Existe asociadosAPR
   console.log(`Hay ${asociadosGrabados.length} asociados`);
   lstAsociados(asociadosGrabados)
@@ -12,7 +12,10 @@ btnAccion.addEventListener('click', (event) => {
   const frmRegistro = getMyForm();
   asociadosGrabados.push(frmRegistro);
   localStorage.setItem("asociados", JSON.stringify(asociadosGrabados));
-  initMyForm(); 
+  initMyForm();
+  asociadosGrabados = getAsociados();
+  console.log(`Saliendo desde click hay ${asociadosGrabados.length} asociados`);
+  lstAsociados(asociadosGrabados);
 });
 
 function getMyForm() {
@@ -33,6 +36,7 @@ function getMyForm() {
 }
 function getAsociados() {
   let asociados = JSON.parse(localStorage.getItem("asociados"));
+
   return asociados;
 }
 function setAsociados() {
@@ -43,18 +47,13 @@ function deleteAsociados() {
 }
 function lstAsociados(asociados) {
   console.log(`lstAsociados: ${asociados}`);
-  
-
   const titleNumeral = '#';
   const titleMedidor = 'Medidor';
   const titleNombre = 'Nombre';
   const titleEmail = 'Email';
   const titleCelular = 'Celular';
   const titleParcela = 'Parcela';
-  
   const titleRow = document.getElementById('titleRow');
-
-  
   title = document.createElement('tr');
   title.innerHTML = '';
   title.innerHTML = `<tr><th>${titleNumeral}</th>
@@ -66,6 +65,7 @@ function lstAsociados(asociados) {
   titleRow.appendChild(title);
   //
   const detailRow = document.getElementById('detailRow');
+  detailRow.innerHTML = '';
   i = 1;
   asociados.forEach((asociado) => {
     console.log(`Asociado: ${asociado}`);
