@@ -36,7 +36,6 @@ function getMyForm() {
 }
 function getAsociados() {
   let asociados = JSON.parse(localStorage.getItem("asociados"));
-
   return asociados;
 }
 function setAsociados() {
@@ -76,7 +75,12 @@ function lstAsociados(asociados) {
                             <td>${nombreCompleto}</td>
                             <td>${asociado.email}</td>
                             <td>${asociado.celular}</td>
-                            <td>${asociado.parcela}</td></tr>`;
+                            <td>${asociado.parcela}</td>
+                            <td>
+                              <button type="button" class="btn btn-primary">Editar</button>
+                              <button type="button" class="btn btn-danger">Eliminar</button>
+                            </td>
+                            </tr>`;
     detailRow.appendChild(detail);
     i++;
   });
