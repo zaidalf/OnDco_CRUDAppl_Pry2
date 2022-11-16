@@ -2,21 +2,79 @@ console.log(document.title); // APR Manager Inc. - 2022
 let asociadosGrabados = getAsociados();
 if (asociadosGrabados) { // Existe asociadosAPR
   console.log(`Hay ${asociadosGrabados.length} asociados`);
-  lstAsociados(asociadosGrabados)
-} else {
+} else { // No existe asociadosAPR
+  asociadosGrabados = [];
   console.log("No hay asociados");
 }
-const btnAccion = document.getElementById('btnAccion');
+let initLstAsociados = initPagination(asociadosGrabados);
+lstAsociados(asociadosGrabados, initLstAsociados);
+
+// Click en btnAccion
+const btnCreate = document.getElementById('btnAccion');
 btnAccion.addEventListener('click', (event) => {
+  console.log('btnAccion');
   event.preventDefault();
   const frmRegistro = getMyForm();
-  asociadosGrabados.push(frmRegistro);
-  localStorage.setItem("asociados", JSON.stringify(asociadosGrabados));
-  initMyForm();
-  asociadosGrabados = getAsociados();
-  console.log(`Saliendo desde click hay ${asociadosGrabados.length} asociados`);
-  lstAsociados(asociadosGrabados);
+  if (!frmRegistro.medidor ||
+       !frmRegistro.nombre ||
+       !frmRegistro.apellidos) {
+        alert('Información minima a ingresar: Medidor, Nombre y Apellidos');
+       } else {
+         asociadosGrabados.push(frmRegistro);
+         localStorage.setItem("asociados", JSON.stringify(asociadosGrabados));
+         initMyForm();
+         asociadosGrabados = getAsociados();
+         console.log(`Saliendo desde click hay ${asociadosGrabados.length} asociados`);
+         initLstAsociados = initPagination(asociadosGrabados);
+         lstAsociados(asociadosGrabados, initLstAsociados);
+        }
 });
+
+// Click en btnUpdate
+const btnUpdate = document.querySelectorAll('.btnUpdate');
+console.log(`btnUpdate ${btnUpdate.length}`);
+btnUpdate.forEach((btn, idx) => {
+   btn.addEventListener('click', (event) => {
+      event.preventDefault();
+      console.log(`btnUpdate ${idx}`);
+      updateAsociados(idx);
+ })
+})
+// Click en btnDelete
+const btnDelete = document.querySelectorAll('.btnDelete');
+console.log(`btnDelete ${btnDelete.length}`);
+btnDelete.forEach((btn, idx) => {
+  btn.addEventListener('click', (event) => {
+    event.preventDefault();
+    console.log(`btnDelete ${idx}`);
+    deleteAsociados(idx);
+  })
+})
+console.log("Fin main.js");
+
+// Function: Inicializa paginación
+function initPagination(asociados) {
+  let lstPag = JSON.parse(localStorage.getItem("cntPagination"));
+  console.log(`initPagination lstPag: ${lstPag}`);
+  if (!lstPag) {
+    lstPag = 1;
+  } else {
+    lstPag++;
+  }
+  let nroPag = 0;
+  if (asociados) {
+      nroPag = Math.trunc(asociados.length / 10);
+      if (asociados.length % 10) {
+        nroPag++;
+     }  
+  } else {
+    nroPag = 1;
+  }                                   
+  console.log(`initPagination nroPag: ${nroPag}`);
+  let lstAso = (lstPag - 1) * 10
+  console.log(`initPagination: ${lstPag} initAsociados ${lstAso}`);
+  return lstAso;
+}
 
 function getMyForm() {
   const frmRegistro = {
@@ -31,7 +89,7 @@ function getMyForm() {
     "region": document.getElementById('frmRegion').value,
     "gps": document.getElementById('frmGPS').value,
   };
-  console.log(`frmRegistro: ${frmRegistro}`);
+  console.log(`frmRegistro: ${frmRegistro} ${frmRegistro.nombre}`);
   return frmRegistro;
 }
 function getAsociados() {
@@ -40,13 +98,22 @@ function getAsociados() {
 }
 function setAsociados() {
 }
-function updateAsociados() {
+function updateAsociados(index) {
+  console.log(`updateAsociados: ${initLstAsociados} ${index}`);
 }
-function deleteAsociados() {
+function deleteAsociados(index) {
+  console.log(`deleteAsociados: ${initLstAsociados} ${index}`);
+  let asociados_ = asociadosGrabados.splice(index, 1);
+  console.log(`deleteAsociados salida splice: ${asociados_.length}`);
+  console.log(`deleteAsociados ahora hay: ${asociadosGrabados.length} asociados`);
+  localStorage.setItem("asociados", JSON.stringify(asociadosGrabados));
+  console.log(`deleteAsociados: ${initLstAsociados}`);
+  lstAsociados(getAsociados(), initLstAsociados);
 }
-function lstAsociados(asociados) {
-  console.log(`lstAsociados: ${asociados}`);
-  const titleNumeral = '#';
+
+// Function: Lista asociados
+function lstAsociados(asociados, initLstAso) {
+  console.log(`lstAsociados: ${asociados} initLstAso: ${initLstAso}`);
   const titleMedidor = 'Medidor';
   const titleNombre = 'Nombre';
   const titleEmail = 'Email';
@@ -55,36 +122,48 @@ function lstAsociados(asociados) {
   const titleRow = document.getElementById('titleRow');
   titleRow.innerHTML = '';
   title = document.createElement('tr');
-  title.innerHTML = `<tr><th>${titleNumeral}</th>
-                            <th>${titleMedidor}</th>
-                            <th>${titleNombre}</th>
-                            <th>${titleEmail}</th>
-                            <th>${titleCelular}</th>
-                            <th>${titleParcela}</th></tr>`;
+  title.innerHTML = `<tr><th>${titleMedidor}</th>
+                          <th>${titleNombre}</th>
+                          <th>${titleEmail}</th>
+                          <th>${titleCelular}</th>
+                          <th>${titleParcela}</th></tr>`;
   titleRow.appendChild(title);
-  //
-  const detailRow = document.getElementById('detailRow');
-  detailRow.innerHTML = '';
-  i = 1;
-  asociados.forEach((asociado) => {
-    console.log(`Asociado: ${asociado}`);
-    const nombreCompleto = `${asociado.nombre} ${asociado.apellidos}`;
-    detail = document.createElement('tr');
-    detail.innerHTML=`<tr><th scope="row">${i}</th>
-                            <td>${asociado.medidor}</td>
-                            <td>${nombreCompleto}</td>
-                            <td>${asociado.email}</td>
-                            <td>${asociado.celular}</td>
-                            <td>${asociado.parcela}</td>
-                            <td>
-                              <button type="button" class="btn btn-primary">Editar</button>
-                              <button type="button" class="btn btn-danger">Eliminar</button>
-                            </td>
-                            </tr>`;
-    detailRow.appendChild(detail);
-    i++;
-  });
+  if (asociados) {
+    const detailRow = document.getElementById('detailRow');
+    detailRow.innerHTML = '';
+    let j = 1;
+    let medidor = [];
+    for (let i = initLstAso; i < asociados.length; i++) {
+      
+      // console.log(`Page: ${nroPag} lstPage: ${lstPag}`);
+      
+      if (j <= 10) {
+        console.log(`Asociado: ${j} ${asociados[i].medidor}`);
+        medidor[j] = asociados[i].medidor;
+        const nombreCompleto = `${asociados[i].nombre} ${asociados[i].apellidos}`;
+        detail = document.createElement('tr');
+        detail.innerHTML=`<tr><th scope="row">${asociados[i].medidor}</th>
+        <td>${nombreCompleto}</td>
+        <td>${asociados[i].email}</td>
+        <td>${asociados[i].celular}</td>
+        <td>${asociados[i].parcela}</td>
+        <td>
+        <button type="submit" class="btn btn-primary btnUpdate">Editar</button>
+        <button type="submit" class="btn btn-danger btnDelete">Eliminar</button>
+        </td>
+        </tr>`;
+        detailRow.appendChild(detail);
+        j++;
+      } else {
+        detail.innerHTML=`<td><button type="submit" class="btn btn-primary btnNext">Continuar</button></td></tr>`;
+        detailRow.appendChild(detail);
+        break;
+      }
+    };
+  }
 }
+
+// Function: Limpia formulario
 function initMyForm() {
   document.getElementById('frmNombre').value = '';
   document.getElementById('frmApellidos').value = '';
