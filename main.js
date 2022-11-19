@@ -35,7 +35,7 @@ btnAccion.addEventListener('click', (event) => {
     createAsociados(frmRegistro);
   } else {
     updateAsociados(frmRegistro, idx);
-  }
+  }V
   console.log(`Saliendo desde click btnAccion hay ${asociadosGrabados.length} asociados`);
   buildMyForm(frmRegistro, 'Crear');
    asociadosGrabados = getAsociados();
