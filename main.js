@@ -19,66 +19,46 @@ if (asociadosGrabados) {                 // Existe asociadosAPR
   asociadosGrabados = [];
   console.log("No hay asociados");
 }
-//
 // Inicia con formulario vacio en modo Crear & Lista asociados desde localStorage
 buildMyForm(frmRegistro, 'Crear');
 lstAsociados(asociadosGrabados);
-//
-// Click en btnAccion - Crear
-const btnAccion = document.querySelector(".btnAccion");
-console.log(`btnAccion: ${btnAccion}`);
-btnAccion.addEventListener('click', (event) => {
-  event.preventDefault();
-  const frmRegistro = getMyForm();
-  console.log(`frmRegistro: ${frmRegistro} ${frmRegistro.nombre} ${btnAccion.textContent}`);
-  if (btnAccion.textContent === 'Crear') {
-    createAsociados(frmRegistro);
-  } else {
-    updateAsociados(frmRegistro, idx);
-  }V
-  console.log(`Saliendo desde click btnAccion hay ${asociadosGrabados.length} asociados`);
-  buildMyForm(frmRegistro, 'Crear');
-   asociadosGrabados = getAsociados();
-  lstAsociados(asociadosGrabados);
-});
-// Click en btnUpdate - desde la lista de asociados
-const btnUpdate = document.querySelectorAll(".btnUpdate");
-console.log(`btnUpdate: ${btnUpdate} ${btnUpdate.length}`);
-btnUpdate.forEach((btn, idx) => {
-  btn.addEventListener('click', (event) => {
-    event.preventDefault();
-    updateIdx = idx;
-    updateAsociadosForm(idx);
-  });
-});
-// Click en btnDelete - desde la lista de asociados
-const btnDelete = document.querySelectorAll(".btnDelete");
-console.log(`btnDelete: ${btnDelete} ${btnDelete.length}`);
-btnDelete.forEach((btn, idx) => {
-  btn.addEventListener('click', (event) => {
-    event.preventDefault();
-    deleteAsociados(idx);
-  });
-});
-// Click en btnActualizar - desde formulario
-const btnActualizar = document.querySelector(".btnActualizar");
-console.log(`btnActualizar: ${btnActualizar}`);
-btnActualizar.addEventListener('click', (event) => {
-  event.preventDefault();
-  const frmRegistro = getMyForm();
-  console.log(`frmRegistro: ${frmRegistro} ${frmRegistro.nombre} ${btnAccion.textContent}`);
-  updateAsociados(frmRegistro);
-});
-// Click en btnCancela - desde formulario para refrescar DOM
-const btnCancelar = document.querySelector(".btnCancelar");
-console.log(`btnCancelar: ${btnCancelar}`);
-btnCancelar.addEventListener('click', (event) => {
-  event.preventDefault();
-  location.reload();
-});
+// -------------------------------------
 console.log("Fin main.js");
 // -------------------------------------
-function getAsociados() {
+function onClickAction() { // Click en btnAction - desde formulario
+  console.log(`onClickAction`);
+  const btnAction = document.querySelector(".btnAction");
+  console.log(`btnCreate: ${btnAction} ${btnAction.textContent}`);
+  btnAction.addEventListener('click', (event) => {
+    event.preventDefault();
+  });
+  const frmRegistro = getMyForm();
+  console.log(`frmRegistro: ${frmRegistro} ${frmRegistro.nombre} ${updateIdx}`);
+  if (btnAction.textContent === 'Crear') {
+    createAsociados(frmRegistro);
+  } else {
+    updateAsociados(frmRegistro, updateIdx);
+  }
+  buildMyForm(frmRegistro, 'Crear');
+  asociadosGrabados = getAsociados();
+  lstAsociados(asociadosGrabados);
+}
+function onClickEdit(btnId) { // Click en btnEdit - desde lista asociados
+  console.log(`onClickEdit: ${btnId}`);
+  let idx = parseInt(btnId);
+  updateIdx = idx;
+  buildMyForm(asociadosGrabados[idx], 'Actualizar');
+}
+function onClickDelete(btnId) { // Click en btnDelete  - desde lista asociados
+  console.log(`onClickDelete: ${btnId}`);
+  let idx = parseInt(btnId);
+  deleteAsociados(idx);
+}
+function onClickCancel() {  // Click en btnCancela - desde formulario para refrescar DOM
+  console.log('onClickCancel');
+  location.reload();
+}
+function getAsociados() { // Trae asociados grabados en localStorage
   let asociados = JSON.parse(localStorage.getItem("asociados"));
   return asociados;
 }
@@ -94,12 +74,7 @@ function createAsociados(_frmRegistro) {
       localStorage.setItem("asociados", JSON.stringify(asociadosGrabados));
   }
 }
-// -------------------------------------
-function updateAsociadosForm(index) {
-  console.log(`updateAsociadosForm entra: ${index} `);
-  // index = index + initLstAsociados;
-  buildMyForm(asociadosGrabados[index], 'Actualizar');
-}
+// ------------------------------------- 
 function updateAsociados(_frmRegistro) {
   console.log(`updateAsociados entra: ${updateIdx} _fmrRegistro: ${_frmRegistro.nombre} ${_frmRegistro.apellidos}`);
   if (!_frmRegistro.medidor ||
@@ -138,6 +113,7 @@ function getMyForm() {
   return _frmRegistro;
 }
 // -------------------------------------
+
 function buildMyForm(_asociado, _btnFunction) {
   console.log(`buildMyForm: ${_btnFunction}`);
   if (_btnFunction === 'Crear') {
@@ -194,7 +170,7 @@ function buildMyForm(_asociado, _btnFunction) {
   frmCellComuna.innerHTML = `<label for="frmComuna" class="form-label">Comuna</label>
                 <input type="text" class="form-control" id="frmComuna" value="${_asociado.comuna}">`;
   myForm.appendChild(frmCellComuna);
-  let frmCellRegion = document.createElement('div');
+  let frmCellRegion = document.createElement('div');  
   frmCellRegion.className = 'col-md-4';
   frmCellRegion.innerHTML = `<label for="frmRegion" class="form-label">Región</label>
                 <select id="frmRegion" class="form-select">
@@ -224,12 +200,17 @@ function buildMyForm(_asociado, _btnFunction) {
   myForm.appendChild(frmCellGPS);
   let frmHR = document.createElement('hr');
   myForm.appendChild(frmHR);
+  let frmCellBtn = document.createElement('div');
+  frmCellBtn.className = 'col-12';
+  frmCellBtn.innerHTML = `<button id="" onclick="onClickAction()" type="button" class="btn btn-primary btnAction">${_btnFunction}</button>
+                          <button id="" onclick="onClickCancel()" type="button" class="btn btn-secondary">Cancelar</button>`;
+  myForm.appendChild(frmCellBtn);
   console.log(`frmBuild: ${_asociado.medidor}`);
 }
 
 // Function: Lista asociados
-function lstAsociados(asociados) {
-  console.log(`lstAsociados`);
+function lstAsociados(_asociados) {
+  console.log(`Function: lstAsociados`);
   const titleMedidor = 'Medidor';
   const titleNombre = 'Nombre';
   const titleEmail = 'Email';
@@ -244,21 +225,25 @@ function lstAsociados(asociados) {
                           <th>${titleCelular}</th>
                           <th>${titleParcela}</th></tr>`;
   titleRow.appendChild(title);
-  if (asociados) {
+  if (_asociados) { // Si hay asociados se despliega tabla
     const detailRow = document.getElementById('detailRow');
     detailRow.innerHTML = '';
     let medidor = [];
-    for (let i = 0; i < asociados.length; i++) {
-      console.log(`Asociado: ${asociados[i].medidor} ${asociados[i].nombre}  ${asociados[i].apellidos}`);
-      const nombreCompleto = `${asociados[i].nombre} ${asociados[i].apellidos}`;
+    for (let i = 0; i < _asociados.length; i++) {
+      console.log(`Asociado: ${_asociados[i].medidor} ${_asociados[i].nombre}  ${_asociados[i].apellidos}`);
+      let nombreCompleto = `${_asociados[i].nombre} ${_asociados[i].apellidos}`;
+      let buttonEdit = `<button id="${i}" type="button" class="btn btn-primary btnEdit" onclick="onClickEdit(this.id)">Actualizar</button>`;
+      let buttonDelete = `<button id="${i}" type="button" class="btn btn-danger btnDelete" onclick="onClickDelete(this.id)">Eliminar</button>`;
+      // console.log(`buttonEdit: ${buttonEdit}`);
+      // console.log(`buttonDelete: ${buttonDelete}`);
       detail = document.createElement('tr');
-      detail.innerHTML=`<tr><th scope="row">${asociados[i].medidor}</th>
+      detail.innerHTML=`<tr><th scope="row">${_asociados[i].medidor}</th>
       <td>${nombreCompleto}</td>
-      <td>${asociados[i].email}</td>
-      <td>${asociados[i].celular}</td>
-      <td>${asociados[i].parcela}</td>
-      <td><button id="" type="button" class="btn btn-primary btnUpdate">Editar</button></td>
-      <td><button id="" type="button" class="btn btn-danger btnDelete">Eliminar</button></td></tr>`;
+      <td>${_asociados[i].email}</td>
+      <td>${_asociados[i].celular}</td>
+      <td>${_asociados[i].parcela}</td>
+      <td>${buttonEdit}</td>
+      <td>${buttonDelete}</td></tr>`;
       detailRow.appendChild(detail);
     }
   }
